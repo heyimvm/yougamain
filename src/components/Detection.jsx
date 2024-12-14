@@ -100,18 +100,34 @@ const PoseDetectionOnPause = () => {
     }
   };
 
-  // Handle extraction of angle and coordinate data into a file
-  const handleExtractData = () => {
+  // Send JSON data to the API
+  const handleExtractData = async () => {
     if (anglesData) {
-      const dataStr = JSON.stringify(anglesData, null, 2);
-      const blob = new Blob([dataStr], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
+      console.log("Extracted Data:", anglesData); // Log JSON object in console
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `pose_data_${anglesData.timestamp.toFixed(2)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
+      // Replace with your actual API URL
+      const API_URL = "https://your-api-endpoint.com/send-data";
+
+      // Send POST request with JSON object
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(anglesData),
+        });
+
+        if (response.ok) {
+          console.log("Data sent successfully!");
+        } else {
+          console.error("Failed to send data. Status:", response.status);
+        }
+      } catch (error) {
+        console.error("Error while sending data:", error);
+      }
+    } else {
+      console.log("No data available. Please pause the video first.");
     }
   };
 
@@ -135,7 +151,7 @@ const PoseDetectionOnPause = () => {
           />
           <canvas
             ref={canvasRef}
-            className="relative top-0 left-0 w-full h-full pointer-events-none"
+            className="absolute top-0 left-0 w-full h-full pointer-events-none"
           />
         </div>
       )}
@@ -144,9 +160,9 @@ const PoseDetectionOnPause = () => {
       {anglesData && (
         <button
           onClick={handleExtractData}
-          className="mt42 bg-blue-500 text-white py-2 px-8 rounded hover:bg-blue-600"
+          className="mt-4 bg-blue-500 text-white py-2 px-8 rounded hover:bg-blue-600"
         >
-          Extract Data
+          Extract & Send Data
         </button>
       )}
     </div>
